@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "musicg demo me"
+rootProject.name = "claptrapper"
 include ':app'

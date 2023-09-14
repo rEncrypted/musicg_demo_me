@@ -1,17 +1,14 @@
-package com.example.musicgdemome;
+package com.example.claptrapper;
 
-import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-
-import androidx.core.app.ActivityCompat;
 
 public class RecorderThread extends Thread {
 
     private AudioRecord audioRecord;
     private boolean isRecording;
-    private int channelConfiguration = AudioFormat.CHANNEL_CONFIGURATION_MONO;
+    private int channelConfiguration = AudioFormat.CHANNEL_IN_MONO;
     private int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
     private int sampleRate = 44100;
     private int frameByteSize = 2048; // for 1024 fft size (16bit sample size)

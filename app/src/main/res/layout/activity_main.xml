@@ -14,6 +14,7 @@
             android:id="@+id/clapButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:text="Click to start listening to claps" />

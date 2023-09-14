@@ -1,4 +1,4 @@
-package com.example.musicgdemome;
+package com.example.claptrapper;
 
 import org.junit.Test;
 
