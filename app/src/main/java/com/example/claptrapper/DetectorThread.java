@@ -2,7 +2,9 @@ package com.example.claptrapper;
 
 import static com.example.claptrapper.services.ClapService.isAlarmTriggered;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaPlayer;
@@ -145,6 +147,14 @@ public class DetectorThread extends Thread {
                     mediaPlayer.prepare();
                     mediaPlayer.start();
                     isAlarmTriggered = true;
+                    //intent to open the mainscreen
+//                    Intent yesIntent = new Intent(context, MainActivity.class);
+////                    yesIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+////                    yesIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//                    yesIntent.putExtra("ringIntent", true);
+//                    yesIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                    context.startActivity(yesIntent);
+//                    PendingIntent.getActivity(context, 0, yesIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 //                isRingtonePlaying = true;
                 }
             }

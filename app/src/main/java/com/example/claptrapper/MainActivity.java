@@ -96,8 +96,12 @@ public class MainActivity extends AppCompatActivity {
 
             boolean isNotificationIntent = getIntent().getExtras().getBoolean("notificationIntent", false);
 
+            boolean isringIntent = getIntent().getExtras().getBoolean("ringIntent", false);
+
             if (isNotificationIntent) {
                 stopRintone();
+            } else if (isringIntent) {
+
             }
         }
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {

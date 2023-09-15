@@ -86,7 +86,6 @@ public class ClapService extends Service {
 //        isIntent = true;
         PendingIntent customNotificationIntent = PendingIntent.getActivity(this, 0, yesIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         customNotificationView.setOnClickPendingIntent(R.id.stop, customNotificationIntent);
-//aap ki zulf pareshan ka tasawur toba //nighat o nor k daharo ko saza milti hai
         // You can customize this notification as needed
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher_round)
