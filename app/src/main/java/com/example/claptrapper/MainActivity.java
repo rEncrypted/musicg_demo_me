@@ -1,5 +1,8 @@
 package com.example.claptrapper;
 
+import static com.example.claptrapper.DetectorThread.mediaPlayer;
+import static com.example.claptrapper.services.ClapService.isAlarmTriggered;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -8,6 +11,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -45,6 +49,31 @@ public class MainActivity extends AppCompatActivity {
     int permission = 0;
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.getAction() != null) {
+
+            if (intent.getAction().equals("YES_ACTION")) {
+                stopRintone();
+            }
+
+
+        }
+
+    }
+
+    private void stopRintone() {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
+            isAlarmTriggered = false;
+            Toast.makeText(MainActivity.this, "Stopped!", Toast.LENGTH_SHORT).show();
+        } else {
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         Intent broadcastIntent = new Intent();
@@ -61,6 +90,16 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        //when app is completely close and user tap on stop button through
+        // notification that will called in activity as onCreate method is that can eill execute
+        if (getIntent().getExtras() != null) {
+
+            boolean isNotificationIntent = getIntent().getExtras().getBoolean("notificationIntent", false);
+
+            if (isNotificationIntent) {
+                stopRintone();
+            }
+        }
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.RECORD_AUDIO}, REQUEST_AUDIO_PERMISSION_RESULT);
 

@@ -3,16 +3,19 @@ package com.example.claptrapper.services;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
+import android.widget.RemoteViews;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.example.claptrapper.DetectorThread;
+import com.example.claptrapper.MainActivity;
 import com.example.claptrapper.R;
 import com.example.claptrapper.RecorderThread;
 import com.example.claptrapper.receiver.ClapReceiver;
@@ -27,7 +30,9 @@ public class ClapService extends Service {
 
     ///
     RecorderThread recorderThread;
-    DetectorThread detectorThread;;
+    DetectorThread detectorThread;
+    public static boolean isAlarmTriggered = false;
+
 
     @Nullable
     @Override
@@ -44,6 +49,7 @@ public class ClapService extends Service {
         broadcastIntent.setClass(this, ClapReceiver.class);
         this.sendBroadcast(broadcastIntent);
     }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
@@ -67,14 +73,28 @@ public class ClapService extends Service {
     }
 
     private Notification createNotification() {
+        // Create a RemoteViews object for the custom layout
+        RemoteViews customNotificationView = new RemoteViews(getPackageName(), R.layout.notification_layout);
+
+
+        // Set up setOnClickPendingIntent for stop
+        Intent yesIntent = new Intent(this, MainActivity.class);
+        yesIntent.setAction("YES_ACTION");
+        yesIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        yesIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        yesIntent.putExtra("notificationIntent", true);
+//        isIntent = true;
+        PendingIntent customNotificationIntent = PendingIntent.getActivity(this, 0, yesIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        customNotificationView.setOnClickPendingIntent(R.id.stop, customNotificationIntent);
+//aap ki zulf pareshan ka tasawur toba //nighat o nor k daharo ko saza milti hai
         // You can customize this notification as needed
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("ClapTrapper")
-                .setContentText("Running in the background")
                 .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setCustomContentView(customNotificationView)
                 .setAutoCancel(false)
                 .setOngoing(true);
 
         return builder.build();
     }
+
 }

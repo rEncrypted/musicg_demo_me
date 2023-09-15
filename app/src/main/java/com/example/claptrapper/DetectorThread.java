@@ -1,24 +1,19 @@
 package com.example.claptrapper;
 
+import static com.example.claptrapper.services.ClapService.isAlarmTriggered;
+
 import android.content.Context;
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Handler;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.musicg.api.ClapApi;
 import com.musicg.api.WhistleApi;
 import com.musicg.wave.WaveHeader;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.LinkedList;
 
 public class DetectorThread extends Thread {
@@ -41,7 +36,7 @@ public class DetectorThread extends Thread {
 
     private Ringtone ringtone;
 
-    private MediaPlayer mediaPlayer;
+    public static MediaPlayer mediaPlayer;
 
     Context context;
     private boolean isRingtonePlaying = false;
@@ -119,6 +114,7 @@ public class DetectorThread extends Thread {
                     if (isWhistle) {
 
                         playRingtone();
+//                        alarm();
 
                     } else {
                         isRingtonePlaying = false;
@@ -128,40 +124,32 @@ public class DetectorThread extends Thread {
                     // end whistle detection
                 }
                 // end audio analyst
-//                Thread.sleep(3000);
+//                Thread.sleep(50);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+
     private void playRingtone() {
 
         try {
-            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
 
-                mediaPlayer.stop();
-                mediaPlayer.release();
-//                isRingtonePlaying = false;
-//                mediaPlayer = null;
-
-            }
             // Get the default notification ringtone
-            if (mediaPlayer != null) {
+            if (!isAlarmTriggered) {
+                if (mediaPlayer != null) {
 
-                mediaPlayer.setDataSource(context, notification);
-                mediaPlayer.setLooping(true);
-                mediaPlayer.prepare();
-                mediaPlayer.start();
-                mediaPlayer = null;
+                    mediaPlayer.setDataSource(context, notification);
+                    mediaPlayer.setLooping(true);
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                    isAlarmTriggered = true;
 //                isRingtonePlaying = true;
+                }
             }
 
-//            else {
 
-
-//                isRingtonePlaying = false;
-//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
