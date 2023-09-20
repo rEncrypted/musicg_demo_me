@@ -1,24 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".activities.MainActivity">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
 
-        <Button
-            android:id="@+id/clapButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:text="Click to start listening to claps" />
+    <LinearLayout
+        android:id="@+id/settings"
+        android:layout_width="75dp"
+        android:layout_height="65dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/background_card"
+        android:elevation="1dp"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_gear" />
+
+    </LinearLayout>
+
+    <com.scwang.wave.MultiWaveHeader
+        android:id="@+id/waveHeader"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        android:scaleY="1"
+        app:mwhCloseColor="@color/wave2"
+        app:mwhColorAlpha="0.45"
+        app:mwhGradientAngle="45"
+        app:mwhIsRunning="true"
+        app:mwhProgress="1"
+        app:mwhStartColor="@color/wave1"
+        app:mwhVelocity="1"
+        app:mwhWaveHeight="50dp"
+        app:mwhWaves="MultiWave" />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="50dp"
+        android:padding="10dp">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/onBtnView"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_centerInParent="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:padding="10dp"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="75dp"
+            app:cardElevation="6dp">
+
+            <LinearLayout
+                android:id="@+id/btnLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/gradient"
+                android:gravity="center">
+
+                <ImageView
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_power_off" />
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
 
     </RelativeLayout>
 
-</LinearLayout>
+    <com.scwang.wave.MultiWaveHeader
+        android:id="@+id/waveHeader2"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:layout_alignParentBottom="true"
+        android:scaleY="-1"
+        app:mwhCloseColor="@color/wave2"
+        app:mwhColorAlpha="0.45"
+        app:mwhGradientAngle="45"
+        app:mwhIsRunning="true"
+        app:mwhProgress="1"
+        app:mwhStartColor="@color/wave1"
+        app:mwhVelocity="1"
+        app:mwhWaveHeight="50dp"
+        app:mwhWaves="MultiWave" />
+
+
+</RelativeLayout>

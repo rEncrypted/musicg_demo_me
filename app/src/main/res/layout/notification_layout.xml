@@ -11,7 +11,7 @@
         android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
         android:layout_marginRight="10dp"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@drawable/icon_notification" />
 
     <LinearLayout
         android:id="@+id/stop"
@@ -22,8 +22,8 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_gravity="center_vertical"
             android:foreground="@drawable/ripple_effect"
             android:src="@drawable/ic_stop" />
@@ -32,12 +32,66 @@
             android:id="@+id/home"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
             android:layout_marginStart="6dp"
-            android:gravity="center_vertical"
-            android:text="Stop" />
+            android:gravity="center"
+            android:text="Stop\nRing"
+            android:textAlignment="center" />
 
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/setting"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="10dp"
+        android:layout_toRightOf="@+id/stop"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:foreground="@drawable/ripple_effect"
+            android:src="@drawable/ic_notif_settings" />
+
+        <TextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:gravity="center"
+            android:text="Settings\nScreen"
+            android:textAlignment="center" />
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:orientation="vertical"
+        android:weightSum="5">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/ic_ringing_ic" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:text="Claptrapper"
+            android:textSize="8sp" />
     </LinearLayout>
 
 

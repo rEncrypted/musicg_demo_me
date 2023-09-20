@@ -15,10 +15,13 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.example.claptrapper.DetectorThread;
-import com.example.claptrapper.MainActivity;
+import com.example.claptrapper.activities.MainActivity;
 import com.example.claptrapper.R;
 import com.example.claptrapper.RecorderThread;
-import com.example.claptrapper.receiver.ClapReceiver;
+import com.example.claptrapper.activities.SettingsScreen;
+import com.example.claptrapper.utils.Constants;
+
+import io.paperdb.Paper;
 
 public class ClapService extends Service {
     private static final int NOTIFICATION_ID = 501;
@@ -33,6 +36,8 @@ public class ClapService extends Service {
     DetectorThread detectorThread;
     public static boolean isAlarmTriggered = false;
 
+    public static int mode;
+
 
     @Nullable
     @Override
@@ -40,34 +45,61 @@ public class ClapService extends Service {
         return null;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction("restartservice");
-        broadcastIntent.setClass(this, ClapReceiver.class);
-        this.sendBroadcast(broadcastIntent);
-    }
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//
+//        Intent broadcastIntent = new Intent();
+//        broadcastIntent.setAction("restartservice");
+//        broadcastIntent.setClass(this, ClapReceiver.class);
+//        this.sendBroadcast(broadcastIntent);
+//    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//
-        Notification notification = createNotification();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, "channel_name", NotificationManager.IMPORTANCE_HIGH);
-            notificationManager.createNotificationChannel(notificationChannel);
+        Paper.init(this);//paper init
+        if(Paper.book().read("mode")!=null){
+            mode = Paper.book().read("mode");
+        }else{
+            mode = 1;
         }
-        notificationManager.notify(NOTIFICATION_ID, notification);
-        startForeground(NOTIFICATION_ID, notification);
 
-        //
-        recorderThread = new RecorderThread();
-        recorderThread.start();
-        detectorThread = new DetectorThread(recorderThread, this);
-        detectorThread.start();
+        if (intent.getAction().equals(Constants.STARTFOREGROUND_ACTION)) {
+            // start service code
+            notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//
+            Notification notification = createNotification();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, "channel_name", NotificationManager.IMPORTANCE_HIGH);
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+            notificationManager.notify(NOTIFICATION_ID, notification);
+            startForeground(NOTIFICATION_ID, notification);
+
+            //
+            recorderThread = new RecorderThread();
+            recorderThread.start();
+            detectorThread = new DetectorThread(recorderThread, this);
+            detectorThread.start();
+
+            Paper.book().write("service", true);
+
+        } else if (intent.getAction().equals(Constants.STOPFOREGROUND_ACTION)) {
+            if (recorderThread != null) {
+                recorderThread.stopRecording();
+                recorderThread = null;
+            }
+            if (detectorThread != null) {
+                detectorThread.stopDetection();
+                detectorThread = null;
+            }
+            stopForeground(true);
+            stopSelfResult(startId);
+
+            Paper.book().write("service", false);
+
+        }
+
 
         return START_STICKY;
     }
@@ -86,6 +118,18 @@ public class ClapService extends Service {
 //        isIntent = true;
         PendingIntent customNotificationIntent = PendingIntent.getActivity(this, 0, yesIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         customNotificationView.setOnClickPendingIntent(R.id.stop, customNotificationIntent);
+
+        // Set up setOnClickPendingIntent for settings
+        Intent sIntent = new Intent(this, SettingsScreen.class);
+//        sIntent.setAction("S_ACTION");
+        sIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        sIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//        sIntent.putExtra("notificationIntent", true);
+//        isIntent = true;
+        PendingIntent customNotificationIntentForSettings = PendingIntent.getActivity(this, 0, sIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        customNotificationView.setOnClickPendingIntent(R.id.setting, customNotificationIntentForSettings);
+
+
         // You can customize this notification as needed
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher_round)

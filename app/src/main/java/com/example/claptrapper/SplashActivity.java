@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.example.claptrapper.activities.MainActivity;
 import com.example.claptrapper.databinding.ActivitySplashBinding;
 
 public class SplashActivity extends AppCompatActivity {

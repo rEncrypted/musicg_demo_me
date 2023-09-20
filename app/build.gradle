@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.claptrapper"
-        minSdk 24
+        minSdk 23
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -45,5 +45,11 @@ dependencies {
     //lottieanim
     //lottiefiles
     implementation 'com.airbnb.android:lottie:6.1.0'
+    //wave anim
+    implementation 'com.scwang.wave:MultiWaveHeader:1.0.0-andx'
+
+    //paperdb
+    implementation 'io.github.pilgr:paperdb:2.7.2'
+
 
 }

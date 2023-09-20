@@ -1,6 +1,7 @@
 package com.example.claptrapper;
 
 import static com.example.claptrapper.services.ClapService.isAlarmTriggered;
+import static com.example.claptrapper.services.ClapService.mode;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.util.Log;
 
 import com.musicg.api.ClapApi;
 import com.musicg.api.WhistleApi;
@@ -36,13 +38,11 @@ public class DetectorThread extends Thread {
 
 //
 
-    private Ringtone ringtone;
 
     public static MediaPlayer mediaPlayer;
 
     Context context;
     private boolean isRingtonePlaying = false;
-    byte[] buffer;
 
     Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 
@@ -70,8 +70,18 @@ public class DetectorThread extends Thread {
         waveHeader.setChannels(channel);
         waveHeader.setBitsPerSample(bitsPerSample);
         waveHeader.setSampleRate(audioRecord.getSampleRate());
-//        whistleApi = new WhistleApi(waveHeader);
-        clapApi = new ClapApi(waveHeader);
+        if (mode == 1) {
+            clapApi = new ClapApi(waveHeader);
+        } else if (mode == 2) {
+
+            whistleApi = new WhistleApi(waveHeader);
+
+        } else if (mode == 3) {
+            clapApi = new ClapApi(waveHeader);
+            whistleApi = new WhistleApi(waveHeader);
+
+        }
+
     }
 
     private void initBuffer() {
@@ -104,24 +114,60 @@ public class DetectorThread extends Thread {
 
             while (_thread == thisThread) {
                 // detect sound
-                buffer = recorder.getFrameBytes();
+                byte[] buffer = recorder.getFrameBytes();
 
 
                 // audio analyst
                 if (buffer != null) {
                     // sound detected
 
-                    boolean isWhistle = clapApi.isClap(buffer);
+                    if (mode == 1) {
 
-                    if (isWhistle) {
+                        boolean isClap = clapApi.isClap(buffer);
+                        Log.d("TAGpp", "run: "+isClap);
 
-                        playRingtone();
+                        if (isClap) {
+                            counts++;
+                            if (counts >= 3) {
+                                Log.d("TAGcc", "run: "+isClap);
+                                playRingtone();
+                                counts = 0;
+                            }
+
 //                        alarm();
 
-                    } else {
-                        isRingtonePlaying = false;
-                    }
+                        } else {
+                            isRingtonePlaying = false;
+                        }
+                    } else if (mode == 2) {
+                        boolean isWhistle = whistleApi.isWhistle(buffer);
+                        if (isWhistle) {
 
+                            playRingtone();
+
+//                        alarm();
+
+                        } else {
+                            isRingtonePlaying = false;
+                        }
+                    } else if (mode == 3) {
+                        boolean isWhistle = whistleApi.isWhistle(buffer);
+                        boolean isClap = clapApi.isClap(buffer);
+                        if (isWhistle || isClap) {
+
+                            counts++;
+                            if (counts >= 3) {
+                                playRingtone();
+                                counts = 0;
+                            }
+
+//                        alarm();
+
+                        } else {
+                            isRingtonePlaying = false;
+                        }
+
+                    }
 
                     // end whistle detection
                 }
@@ -166,11 +212,11 @@ public class DetectorThread extends Thread {
 
     }
 
-    private void stopRingtone() {
-        if (ringtone != null && ringtone.isPlaying()) {
-            ringtone.stop();
-        }
-    }
+//    private void stopRingtone() {
+//        if (ringtone != null && ringtone.isPlaying()) {
+//            ringtone.stop();
+//        }
+//    }
 
     public int gettotalClapsDetected() {
         return totalClapsDetected;

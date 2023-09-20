@@ -1,4 +1,4 @@
-package com.example.claptrapper;
+package com.example.claptrapper.activities;
 
 import static com.example.claptrapper.DetectorThread.mediaPlayer;
 import static com.example.claptrapper.services.ClapService.isAlarmTriggered;
@@ -7,46 +7,29 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.claptrapper.R;
 import com.example.claptrapper.databinding.ActivityMainBinding;
 import com.example.claptrapper.receiver.ClapReceiver;
 import com.example.claptrapper.services.ClapService;
+import com.example.claptrapper.utils.Constants;
+
+import io.paperdb.Paper;
 
 public class MainActivity extends AppCompatActivity {
     //binding
     ActivityMainBinding binding;
-    public static final int DETECT_NONE = 0;
-    public static final int DETECT_WHISTLE = 1;
-    public static int selectedDetection = DETECT_NONE;
-
-    // detection parameters
-    private DetectorThread detectorThread;
-    private RecorderThread recorderThread;
-    private Thread detectedTextThread;
-    public static int clapValue = 0;
-
-    // views
-    private View mainView, listeningView;
-    private Button clapButton;
-    private TextView totalClapsDetectedNumberText;
-
     public static final int REQUEST_AUDIO_PERMISSION_RESULT = 1;
-
-    int permission = 0;
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -76,10 +59,26 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction("restartservice");
-        broadcastIntent.setClass(this, ClapReceiver.class);
-        this.sendBroadcast(broadcastIntent);
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+
+        } else {
+            //check from db whether it's runnning
+            if (Paper.book().read("service") != null) {
+                if (Boolean.TRUE.equals(Paper.book().read("service"))) {
+                    Intent broadcastIntent = new Intent();
+                    broadcastIntent.setAction("restartservice");
+                    broadcastIntent.setClass(this, ClapReceiver.class);
+                    this.sendBroadcast(broadcastIntent);
+                } else {
+
+                }
+            }
+
+
+        }
+
+
 //        super.onDestroy();
     }
 
@@ -89,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
         // set views
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        //paper init
+        Paper.init(this);
 
         //when app is completely close and user tap on stop button through
         // notification that will called in activity as onCreate method is that can eill execute
@@ -104,35 +106,110 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }
+
+
+        ///when app open, it'll check
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.RECORD_AUDIO}, REQUEST_AUDIO_PERMISSION_RESULT);
 
         } else {
-            Intent serviceIntent = new Intent(MainActivity.this, ClapService.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent);
-            } else {
-                startService(serviceIntent);
+            if (Paper.book().read("service") != null) {
+                if (Boolean.TRUE.equals(Paper.book().read("service"))) {
+                    startClapService();
+
+                } else {
+
+                }
             }
         }
 
-        //btn listener
-//        binding.clapButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (permission == 1) {
-//                    Intent serviceIntent = new Intent(MainActivity.this, ClapService.class);
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                        startForegroundService(serviceIntent);
-//                    } else {
-//                        startService(serviceIntent);
-//                    }
-//                } else {
-//                    Toast.makeText(MainActivity.this, "Please give record audio permission to the App", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        });
+        //settings
+        binding.settings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
+                startActivity(new Intent(MainActivity.this, SettingsScreen.class));
+
+            }
+        });
+
+
+//        btn listener
+        binding.onBtnView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{android.Manifest.permission.RECORD_AUDIO}, REQUEST_AUDIO_PERMISSION_RESULT);
+
+                } else {
+                    if (isServiceRunning(ClapService.class)) {
+                        stopClapService();
+                        Toast.makeText(MainActivity.this, "Stop Service", Toast.LENGTH_SHORT).show();
+                    } else {
+                        startClapService();
+                        Toast.makeText(MainActivity.this, "Start Service", Toast.LENGTH_SHORT).show();
+
+                    }
+
+                }
+
+            }
+        });
+
+
+    }
+
+
+    private boolean isServiceRunning(Class<ClapService> clapServiceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (clapServiceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void stopClapService() {
+        Intent serviceIntent = new Intent(MainActivity.this, ClapService.class);
+        serviceIntent.setAction(Constants.STOPFOREGROUND_ACTION);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
+
+        binding.btnLayout.setBackgroundResource(R.drawable.gradient);
+
+        //wave 1 the top wave
+        binding.waveHeader.setCloseColor(Color.parseColor("#F64D4D"));
+        binding.waveHeader.setStartColor(Color.parseColor("#AD0000"));
+
+        //wave 2, bottom down wave
+        binding.waveHeader2.setStartColor(Color.parseColor("#AD0000"));
+        binding.waveHeader2.setCloseColor(Color.parseColor("#F64D4D"));
+
+    }
+
+    private void startClapService() {
+
+        Intent serviceIntent = new Intent(MainActivity.this, ClapService.class);
+        serviceIntent.setAction(Constants.STARTFOREGROUND_ACTION);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
+
+        binding.btnLayout.setBackgroundResource(R.drawable.gradient_green);
+
+        //wave 1 the top wave
+        binding.waveHeader.setCloseColor(Color.parseColor("#3BA900"));
+        binding.waveHeader.setStartColor(Color.parseColor("#257C00"));
+
+        //wave 2, bottom down wave
+        binding.waveHeader2.setStartColor(Color.parseColor("#257C00"));
+        binding.waveHeader2.setCloseColor(Color.parseColor("#3BA900"));
 
     }
 
@@ -233,7 +310,8 @@ public class MainActivity extends AppCompatActivity {
             case REQUEST_AUDIO_PERMISSION_RESULT:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 //                    startRecordingDirectly();
-                    permission = 1;
+                    startClapService();
+                    Toast.makeText(this, "Start Service", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
                     Log.e("Permission Error", "Audio recording permission denied");

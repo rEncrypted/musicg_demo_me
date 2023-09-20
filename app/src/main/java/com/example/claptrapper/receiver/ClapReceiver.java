@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Build;
 
 import com.example.claptrapper.services.ClapService;
+import com.example.claptrapper.utils.Constants;
 
 public class ClapReceiver extends BroadcastReceiver {
     @Override
@@ -13,9 +14,13 @@ public class ClapReceiver extends BroadcastReceiver {
         if (intent.getAction() != null) {
             if (intent.getAction().equals("restartservice")) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context.startForegroundService(new Intent(context, ClapService.class));
+                    Intent i = new Intent(context, ClapService.class);
+                    i.setAction(Constants.STARTFOREGROUND_ACTION);
+                    context.startForegroundService(i);
                 } else {
-                    context.startService(new Intent(context, ClapService.class));
+                    Intent i = new Intent(context, ClapService.class);
+                    i.setAction(Constants.STARTFOREGROUND_ACTION);
+                    context.startService(i);
                 }
             }
         }
