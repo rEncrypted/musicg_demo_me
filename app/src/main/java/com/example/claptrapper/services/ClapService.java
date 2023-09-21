@@ -38,6 +38,8 @@ public class ClapService extends Service {
 
     public static int mode;
 
+    public static boolean flash = false;
+    public static boolean vibration = false;
 
     @Nullable
     @Override
@@ -63,6 +65,16 @@ public class ClapService extends Service {
         }else{
             mode = 1;
         }
+
+        //flash
+        if(Paper.book().read("flash")!=null){
+            flash = Paper.book().read("flash");
+        }
+        //vibration
+        if(Paper.book().read("vibration")!=null){
+            vibration = Paper.book().read("vibration");
+        }
+
 
         if (intent.getAction().equals(Constants.STARTFOREGROUND_ACTION)) {
             // start service code

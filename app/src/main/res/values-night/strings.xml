@@ -1,4 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">claptrapper</string>
     <string name="device_doesn_t_support_flash_light">Your device doesn\'t have a flash light feature</string>
 </resources>

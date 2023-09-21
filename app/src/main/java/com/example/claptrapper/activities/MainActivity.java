@@ -1,7 +1,11 @@
 package com.example.claptrapper.activities;
 
+import static com.example.claptrapper.DetectorThread.flManager;
 import static com.example.claptrapper.DetectorThread.mediaPlayer;
+import static com.example.claptrapper.DetectorThread.vibrationEffect;
+import static com.example.claptrapper.DetectorThread.vibrator;
 import static com.example.claptrapper.services.ClapService.isAlarmTriggered;
+import static com.example.claptrapper.services.ClapService.vibration;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +27,7 @@ import com.example.claptrapper.databinding.ActivityMainBinding;
 import com.example.claptrapper.receiver.ClapReceiver;
 import com.example.claptrapper.services.ClapService;
 import com.example.claptrapper.utils.Constants;
+import com.google.android.material.snackbar.Snackbar;
 
 import io.paperdb.Paper;
 
@@ -48,6 +53,12 @@ public class MainActivity extends AppCompatActivity {
     private void stopRintone() {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
+            if (vibrationEffect != null) {
+                vibrator.cancel();
+            }
+            if (flManager != null) {
+                flManager.stopBlinking();
+            }
             mediaPlayer.release();
             mediaPlayer = null;
             isAlarmTriggered = false;
@@ -144,11 +155,14 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     if (isServiceRunning(ClapService.class)) {
                         stopClapService();
-                        Toast.makeText(MainActivity.this, "Stop Service", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(MainActivity.this, "Stop Service", Toast.LENGTH_SHORT).show();
+                        Snackbar snackbar = Snackbar.make(binding.mainLayout, "Service is stop now!", Snackbar.LENGTH_SHORT);
+                        snackbar.show();
                     } else {
                         startClapService();
-                        Toast.makeText(MainActivity.this, "Start Service", Toast.LENGTH_SHORT).show();
-
+//                        Toast.makeText(MainActivity.this, "Start Service", Toast.LENGTH_SHORT).show();
+                        Snackbar snackbar = Snackbar.make(binding.mainLayout, "Service is start now!", Snackbar.LENGTH_SHORT);
+                        snackbar.show();
                     }
 
                 }
@@ -311,7 +325,8 @@ public class MainActivity extends AppCompatActivity {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 //                    startRecordingDirectly();
                     startClapService();
-                    Toast.makeText(this, "Start Service", Toast.LENGTH_SHORT).show();
+                    Snackbar snackbar = Snackbar.make(binding.mainLayout, "Service is start now!", Snackbar.LENGTH_SHORT);
+                    snackbar.show();
                 } else {
                     Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
                     Log.e("Permission Error", "Audio recording permission denied");

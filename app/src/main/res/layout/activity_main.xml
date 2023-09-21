@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity">
@@ -53,9 +54,9 @@
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_centerInParent="true"
+            android:layout_margin="8dp"
             android:foreground="?android:attr/selectableItemBackground"
             android:padding="10dp"
-            android:layout_margin="8dp"
             app:cardCornerRadius="75dp"
             app:cardElevation="6dp">
 

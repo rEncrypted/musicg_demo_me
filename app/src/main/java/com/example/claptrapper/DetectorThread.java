@@ -1,19 +1,25 @@
 package com.example.claptrapper;
 
+import static com.example.claptrapper.services.ClapService.flash;
 import static com.example.claptrapper.services.ClapService.isAlarmTriggered;
 import static com.example.claptrapper.services.ClapService.mode;
+import static com.example.claptrapper.services.ClapService.vibration;
 
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 
+import com.example.claptrapper.utils.FlashlightManager;
 import com.musicg.api.ClapApi;
 import com.musicg.api.WhistleApi;
 import com.musicg.wave.WaveHeader;
@@ -43,6 +49,14 @@ public class DetectorThread extends Thread {
 
     Context context;
     private boolean isRingtonePlaying = false;
+    AudioManager audioManager;
+
+    //vibrations
+    public static Vibrator vibrator;
+    public static VibrationEffect vibrationEffect;
+
+    //flashlight
+    public static FlashlightManager flManager;
 
     Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 
@@ -64,6 +78,18 @@ public class DetectorThread extends Thread {
         if (audioRecord.getChannelConfiguration() == AudioFormat.CHANNEL_IN_MONO) {
             channel = 1;
         }
+
+        //vib
+        vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+
+        //flashLight
+        flManager = new FlashlightManager(context);
+
+        //set Vol to maximum
+        audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_RING);
+        audioManager.setStreamVolume(AudioManager.STREAM_RING, maxVolume, AudioManager.FLAG_PLAY_SOUND);
+
         mediaPlayer = new MediaPlayer();
 
         waveHeader = new WaveHeader();
@@ -124,12 +150,12 @@ public class DetectorThread extends Thread {
                     if (mode == 1) {
 
                         boolean isClap = clapApi.isClap(buffer);
-                        Log.d("TAGpp", "run: "+isClap);
+                        Log.d("TAGpp", "run: " + isClap);
 
                         if (isClap) {
                             counts++;
                             if (counts >= 3) {
-                                Log.d("TAGcc", "run: "+isClap);
+                                Log.d("TAGcc", "run: " + isClap);
                                 playRingtone();
                                 counts = 0;
                             }
@@ -188,10 +214,26 @@ public class DetectorThread extends Thread {
             if (!isAlarmTriggered) {
                 if (mediaPlayer != null) {
 
+                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_RING);
                     mediaPlayer.setDataSource(context, notification);
                     mediaPlayer.setLooping(true);
                     mediaPlayer.prepare();
                     mediaPlayer.start();
+                    if (vibration) {
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+
+                            // create vibrator effect with the constant EFFECT_TICK
+                            vibrationEffect = VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK);
+                            // it is safe to cancel other vibrations currently taking place
+                            vibrator.cancel();
+                            vibrator.vibrate(vibrationEffect);
+                        } else {
+                            vibrator.vibrate(2000);
+                        }
+                    }
+                    if (flash) {
+                        flManager.startBlinking();
+                    }
                     isAlarmTriggered = true;
                     //intent to open the mainscreen
 //                    Intent yesIntent = new Intent(context, MainActivity.class);
