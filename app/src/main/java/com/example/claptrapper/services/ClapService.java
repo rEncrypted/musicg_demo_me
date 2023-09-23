@@ -92,6 +92,7 @@ public class ClapService extends Service {
             recorderThread = new RecorderThread();
             recorderThread.start();
             detectorThread = new DetectorThread(recorderThread, this);
+            DetectorThread.counts = 0;
             detectorThread.start();
 
             Paper.book().write("service", true);

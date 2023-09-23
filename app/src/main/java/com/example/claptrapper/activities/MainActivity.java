@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.claptrapper.DetectorThread;
 import com.example.claptrapper.R;
 import com.example.claptrapper.databinding.ActivityMainBinding;
 import com.example.claptrapper.receiver.ClapReceiver;
@@ -29,6 +30,11 @@ import com.example.claptrapper.services.ClapService;
 import com.example.claptrapper.utils.Constants;
 import com.google.android.material.snackbar.Snackbar;
 
+import co.mobiwise.materialintro.animation.MaterialIntroListener;
+import co.mobiwise.materialintro.shape.Focus;
+import co.mobiwise.materialintro.shape.FocusGravity;
+import co.mobiwise.materialintro.shape.ShapeType;
+import co.mobiwise.materialintro.view.MaterialIntroView;
 import io.paperdb.Paper;
 
 public class MainActivity extends AppCompatActivity {
@@ -56,14 +62,22 @@ public class MainActivity extends AppCompatActivity {
             if (vibrationEffect != null) {
                 vibrator.cancel();
             }
+            if(vibrator !=null){
+                vibrator.cancel();
+            }
             if (flManager != null) {
                 flManager.stopBlinking();
             }
             mediaPlayer.release();
             mediaPlayer = null;
+            DetectorThread.counts = 0;
             isAlarmTriggered = false;
-            Toast.makeText(MainActivity.this, "Stopped!", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(MainActivity.this, "Stopped!", Toast.LENGTH_SHORT).show();
+            Snackbar snackbar = Snackbar.make(binding.mainLayout, "The ringing is stop now", Snackbar.LENGTH_SHORT);
+            snackbar.show();
         } else {
+            Snackbar snackbar = Snackbar.make(binding.mainLayout, "The ringing is already stop", Snackbar.LENGTH_SHORT);
+            snackbar.show();
         }
     }
 
@@ -103,6 +117,41 @@ public class MainActivity extends AppCompatActivity {
         //paper init
         Paper.init(this);
 
+//        showcase
+        new MaterialIntroView.Builder(this)
+                .enableDotAnimation(true)
+                .enableIcon(false)
+                .setFocusGravity(FocusGravity.CENTER)
+                .setFocusType(Focus.NORMAL)
+                .setDelayMillis(1000)
+
+                .setListener(new MaterialIntroListener() {
+                    @Override
+                    public void onUserClicked(String materialIntroViewId) {
+                        new MaterialIntroView.Builder(MainActivity.this)
+                                .enableDotAnimation(true)
+                                .enableIcon(false)
+                                .setFocusGravity(FocusGravity.CENTER)
+                                .setFocusType(Focus.MINIMUM)
+                                .setDelayMillis(500)
+
+                                .performClick(false)
+                                .setInfoText("Tap this button to turn off ringing.")
+                                .setShape(ShapeType.CIRCLE)
+                                .setTarget(binding.stopRingBtn)
+                                .setUsageId("intro_2") //THIS SHOULD BE UNIQUE ID
+                                .setIdempotent(true)
+                                .show();
+                    }
+                })
+                .setInfoText("Tap this button to turn on/off service.")
+                .setShape(ShapeType.CIRCLE)
+                .setTarget(binding.onBtnView)
+                .setUsageId("intro_1") //THIS SHOULD BE UNIQUE ID
+                .setIdempotent(true)
+                .show();
+
+
         //when app is completely close and user tap on stop button through
         // notification that will called in activity as onCreate method is that can eill execute
         if (getIntent().getExtras() != null) {
@@ -140,6 +189,14 @@ public class MainActivity extends AppCompatActivity {
 
                 startActivity(new Intent(MainActivity.this, SettingsScreen.class));
 
+            }
+        });
+
+        //stopRingButton
+        binding.stopRingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stopRintone();
             }
         });
 

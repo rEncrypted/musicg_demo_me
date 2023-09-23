@@ -36,6 +36,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.lifecycle:lifecycle-process:2.6.2'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -51,5 +52,15 @@ dependencies {
     //paperdb
     implementation 'io.github.pilgr:paperdb:2.7.2'
 
+    //introview
+    implementation 'com.github.iammert:MaterialIntroView:1.6.0'
 
+    //admob
+    implementation 'com.google.android.gms:play-services-ads:22.4.0'
+
+    //activity lifecycle
+    def lifecycle_version = "2.3.1"
+//    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-runtime:$lifecycle_version"
+    annotationProcessor "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
 }

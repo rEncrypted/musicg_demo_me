@@ -15,6 +15,7 @@ import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
@@ -40,7 +41,7 @@ public class DetectorThread extends Thread {
     private int CheckClapLength = 3;
     private int ClapPassScore = 1;
 
-    int counts = 0;
+    public static int counts = 0;
 
 //
 
@@ -153,9 +154,10 @@ public class DetectorThread extends Thread {
                         Log.d("TAGpp", "run: " + isClap);
 
                         if (isClap) {
+//                            Log.d("TAGcc", "run: " + isClap);
                             counts++;
-                            if (counts >= 3) {
-                                Log.d("TAGcc", "run: " + isClap);
+                            if (counts >= 6) {
+                                Log.d("TAGcc", "run after counts: " + isClap);
                                 playRingtone();
                                 counts = 0;
                             }
@@ -164,33 +166,45 @@ public class DetectorThread extends Thread {
 
                         } else {
                             isRingtonePlaying = false;
+                            counts = 0;
                         }
                     } else if (mode == 2) {
                         boolean isWhistle = whistleApi.isWhistle(buffer);
                         if (isWhistle) {
-
-                            playRingtone();
-
+                            counts++;
+                            if (counts >= 6) {
+                                Log.d("TAGcc", "run: " + isWhistle);
+                                playRingtone();
+                                counts = 0;
+                            }
 //                        alarm();
 
                         } else {
                             isRingtonePlaying = false;
+                            counts = 0;
                         }
                     } else if (mode == 3) {
                         boolean isWhistle = whistleApi.isWhistle(buffer);
                         boolean isClap = clapApi.isClap(buffer);
-                        if (isWhistle || isClap) {
+                        if (isClap) {
 
                             counts++;
-                            if (counts >= 3) {
+                            if (counts >= 6) {
                                 playRingtone();
                                 counts = 0;
                             }
 
 //                        alarm();
 
+                        } else if (isWhistle) {
+                            counts++;
+                            if (counts >= 6) {
+                                playRingtone();
+                                counts = 0;
+                            }
                         } else {
-                            isRingtonePlaying = false;
+                            counts = 0;
+
                         }
 
                     }
@@ -220,22 +234,26 @@ public class DetectorThread extends Thread {
                     mediaPlayer.prepare();
                     mediaPlayer.start();
                     if (vibration) {
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
 
-                            // create vibrator effect with the constant EFFECT_TICK
-                            vibrationEffect = VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK);
-                            // it is safe to cancel other vibrations currently taking place
-                            vibrator.cancel();
-                            vibrator.vibrate(vibrationEffect);
+
+                        // create vibrator effect with the constant EFFECT_TICK
+                        // it is safe to cancel other vibrations currently taking place
+                        vibrator.cancel();
+
+                        long[] pattern = {0, 100, 1000};
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0));
                         } else {
-                            vibrator.vibrate(2000);
+                            vibrator.vibrate(pattern, 0);
                         }
                     }
-                    if (flash) {
-                        flManager.startBlinking();
-                    }
-                    isAlarmTriggered = true;
-                    //intent to open the mainscreen
+
+
+                        if (flash) {
+                            flManager.startBlinking();
+                        }
+                        isAlarmTriggered = true;
+                        //intent to open the mainscreen
 //                    Intent yesIntent = new Intent(context, MainActivity.class);
 ////                    yesIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 ////                    yesIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -244,15 +262,15 @@ public class DetectorThread extends Thread {
 //                    context.startActivity(yesIntent);
 //                    PendingIntent.getActivity(context, 0, yesIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 //                isRingtonePlaying = true;
+                    }
                 }
+
+
+            } catch(Exception e){
+                e.printStackTrace();
             }
 
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
-    }
 
 //    private void stopRingtone() {
 //        if (ringtone != null && ringtone.isPlaying()) {
@@ -260,9 +278,9 @@ public class DetectorThread extends Thread {
 //        }
 //    }
 
-    public int gettotalClapsDetected() {
-        return totalClapsDetected;
+        public int gettotalClapsDetected () {
+            return totalClapsDetected;
+        }
+
+
     }
-
-
-}
