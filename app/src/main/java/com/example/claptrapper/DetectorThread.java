@@ -21,7 +21,7 @@ import android.os.Vibrator;
 import android.util.Log;
 
 import com.example.claptrapper.utils.FlashlightManager;
-import com.musicg.api.ClapApi;
+import com.example.claptrapper.musicg.ClapApi;
 import com.musicg.api.WhistleApi;
 import com.musicg.wave.WaveHeader;
 
@@ -88,10 +88,14 @@ public class DetectorThread extends Thread {
 
         //set Vol to maximum
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_RING);
-        audioManager.setStreamVolume(AudioManager.STREAM_RING, maxVolume, AudioManager.FLAG_PLAY_SOUND);
+        int result = audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
-        mediaPlayer = new MediaPlayer();
+        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolume, AudioManager.FLAG_PLAY_SOUND);
+            mediaPlayer = new MediaPlayer();
+
+        }
 
         waveHeader = new WaveHeader();
         waveHeader.setChannels(channel);

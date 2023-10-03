@@ -129,7 +129,8 @@ public class ClapService extends Service {
         yesIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         yesIntent.putExtra("notificationIntent", true);
 //        isIntent = true;
-        PendingIntent customNotificationIntent = PendingIntent.getActivity(this, 0, yesIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        PendingIntent customNotificationIntent = PendingIntent.getActivity(this, 0, yesIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         customNotificationView.setOnClickPendingIntent(R.id.stop, customNotificationIntent);
 
         // Set up setOnClickPendingIntent for settings
@@ -139,7 +140,7 @@ public class ClapService extends Service {
         sIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 //        sIntent.putExtra("notificationIntent", true);
 //        isIntent = true;
-        PendingIntent customNotificationIntentForSettings = PendingIntent.getActivity(this, 0, sIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent customNotificationIntentForSettings = PendingIntent.getActivity(this, 0, sIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         customNotificationView.setOnClickPendingIntent(R.id.setting, customNotificationIntentForSettings);
 
 
